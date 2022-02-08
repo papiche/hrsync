@@ -12,6 +12,8 @@
 Source="${1%/}"
 Target="${2%/}"
 TargetHost=$3
+PortHost=$4
+[[ ! $PortHost ]] && PortHost=22
 
 # ------------------------------------------------------------
 # Name of shadow directory
@@ -56,10 +58,10 @@ fi
 if [ -z "$3" ]
 then
 	# local version
-	rsync -axXhHv --stats --no-inc-recursive --numeric-ids --delete --delete-after "$Source"/ "$Target"
+	rsync -axXhHv --stats --no-inc-recursive --numeric-ids --delete --delete-after -e "ssh -p $PortHost" "$Source"/ "$Target"
 else
 	# remote version
-	rsync -axXhHv --stats --no-inc-recursive --numeric-ids --delete --delete-after "$Source"/ $TargetHost:"'$Target'"
+	rsync -axXhHv --stats --no-inc-recursive --numeric-ids --delete --delete-after -e "ssh -p $PortHost" "$Source"/ $TargetHost:"'$Target'"
 fi
 
 status=$?
@@ -67,16 +69,16 @@ status=$?
 if [ $status -eq 0 ]
 then
 	#update source shadow directory
-	rsync -a --delete --link-dest="$Source" --exclude="/$Shadow" "$Source"/ "$Source/$Shadow"
+	rsync -a --delete --link-dest="$Source" --exclude="/$Shadow" -e "ssh -p $PortHost" "$Source"/ "$Source/$Shadow"
 
 	#update target shadow directory
 	if [ -z "$3" ]
 	then
 		# local version
-		rsync -a --delete --link-dest="$Target" --exclude="/$Shadow" "$Target/" "$Target/$Shadow"
+		rsync -a --delete --link-dest="$Target" --exclude="/$Shadow" -e "ssh -p $PortHost" "$Target/" "$Target/$Shadow"
 	else
 		# remote version
-		ssh $TargetHost "rsync -a --delete --link-dest='$Target' --exclude='/$Shadow' '$Target/' '$Target/$Shadow'"
+		ssh $TargetHost "rsync -a --delete --link-dest='$Target' --exclude='/$Shadow' -e "ssh -p $PortHost" '$Target/' '$Target/$Shadow'"
 	fi
 fi
 
