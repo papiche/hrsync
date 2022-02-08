@@ -78,7 +78,7 @@ then
 		rsync -a --delete --link-dest="$Target" --exclude="/$Shadow" -e "ssh -p $PortHost" "$Target/" "$Target/$Shadow"
 	else
 		# remote version
-		ssh $TargetHost -p $PortHost "rsync -a --delete --link-dest='$Target' --exclude='/$Shadow' -e "ssh -p $PortHost" '$Target/' '$Target/$Shadow'"
+		ssh $TargetHost -p $PortHost "rsync -a --delete --link-dest='$Target' --exclude='/$Shadow' '$Target/' '$Target/$Shadow'"
 	fi
 fi
 
